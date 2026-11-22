@@ -1,20 +1,53 @@
 {% extends "catalog/base.html" %}
-{% block title %}Members · Library Manager{% endblock %}
+
+{% block title %}Members Directory · Athena Library Manager{% endblock %}
+
 {% block content %}
 <div class="page-heading split">
-    <div><p class="eyebrow">READERS</p><h1>Members</h1><p>Registered library members.</p></div>
-    <a class="button" href="{% url 'member_create' %}">Register member</a>
+    <div>
+        <p class="eyebrow">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            READER DIRECTORY
+        </p>
+        <h1>Registered Members</h1>
+        <p>List of all registered library patrons, students, and faculty members.</p>
+    </div>
+    <a class="button" href="{% url 'member_create' %}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Register New Member
+    </a>
 </div>
+
 <section class="panel table-wrap">
-<table>
-    <thead><tr><th>Name</th><th>Email</th><th>Phone</th></tr></thead>
-    <tbody>
-    {% for member in members %}
-        <tr><td>{{ member.name }}</td><td>{{ member.email }}</td><td>{{ member.phone }}</td></tr>
-    {% empty %}
-        <tr><td colspan="3" class="empty">No members yet.</td></tr>
-    {% endfor %}
-    </tbody>
-</table>
+    <table>
+        <thead>
+            <tr>
+                <th>Member Full Name</th>
+                <th>Institutional Email</th>
+                <th>Contact Phone</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for member in members %}
+            <tr>
+                <td><strong>{{ member.name }}</strong></td>
+                <td><a href="mailto:{{ member.email }}" class="text-link">{{ member.email }}</a></td>
+                <td><code>{{ member.phone }}</code></td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="3" class="empty">No registered patrons in the database.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </section>
 {% endblock %}

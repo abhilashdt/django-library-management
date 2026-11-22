@@ -1,43 +1,112 @@
 {% extends "catalog/base.html" %}
-{% block title %}Dashboard · Library Manager{% endblock %}
+
+{% block title %}Dashboard · Athena Library Manager{% endblock %}
+
 {% block content %}
 <section class="page-heading">
-    <p class="eyebrow">OVERVIEW</p>
+    <p class="eyebrow">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        SYSTEM OVERVIEW
+    </p>
     <h1>Library dashboard</h1>
-    <p>Manage the catalogue, readers and active loans from one place.</p>
+    <p>Real-time analytics for book inventory, registered readers, and active circulation.</p>
 </section>
+
 <section class="stats">
-    <article class="stat-card"><span>Books</span><strong>{{ book_count }}</strong></article>
-    <article class="stat-card"><span>Members</span><strong>{{ member_count }}</strong></article>
-    <article class="stat-card"><span>Active loans</span><strong>{{ active_loan_count }}</strong></article>
+    <article class="stat-card">
+        <span>Total Books in Catalog</span>
+        <strong>{{ book_count }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Registered Members</span>
+        <strong>{{ member_count }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Active Loans</span>
+        <strong>{{ active_loan_count }}</strong>
+    </article>
 </section>
+
 <section class="panel">
     <div class="panel-heading">
-        <h2>Recent loans</h2>
-        <a href="{% url 'loan_list' %}">View all</a>
+        <h2>Recent Circulation Activity</h2>
+        <a href="{% url 'loan_list' %}">View all loans &rarr;</a>
     </div>
     <div class="table-wrap">
         <table>
-            <thead><tr><th>Book</th><th>Member</th><th>Issued</th><th>Due</th><th>Status</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Book Title</th>
+                    <th>Borrower</th>
+                    <th>Issue Date</th>
+                    <th>Due Date</th>
+                    <th>Loan Status</th>
+                </tr>
+            </thead>
             <tbody>
             {% for loan in recent_loans %}
                 <tr>
-                    <td>{{ loan.book.title }}</td>
+                    <td><strong>{{ loan.book.title }}</strong></td>
                     <td>{{ loan.member.name }}</td>
                     <td>{{ loan.issued_at|date:"d M Y" }}</td>
                     <td>{{ loan.due_date|date:"d M Y" }}</td>
-                    <td>{% if loan.returned_at %}<span class="badge returned">Returned</span>{% else %}<span class="badge active">Active</span>{% endif %}</td>
+                    <td>
+                        {% if loan.returned_at %}
+                            <span class="badge returned">Returned</span>
+                        {% else %}
+                            <span class="badge active">Active</span>
+                        {% endif %}
+                    </td>
                 </tr>
             {% empty %}
-                <tr><td colspan="5" class="empty">No loans yet. Add a book and member, then issue a book.</td></tr>
+                <tr>
+                    <td colspan="5" class="empty">No circulation activity recorded yet. Register books and members to get started.</td>
+                </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
 </section>
+
 <section class="quick-links">
-    <a class="action-card" href="{% url 'book_create' %}"><strong>＋ Add a book</strong><span>Create a catalogue record</span></a>
-    <a class="action-card" href="{% url 'member_create' %}"><strong>＋ Register a member</strong><span>Add a library reader</span></a>
-    <a class="action-card" href="{% url 'issue_book' %}"><strong>↗ Issue a book</strong><span>Start a new loan</span></a>
+    <a class="action-card" href="{% url 'book_create' %}">
+        <strong>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                <line x1="12" y1="8" x2="12" y2="14"></line>
+                <line x1="9" y1="11" x2="15" y2="11"></line>
+            </svg>
+            Add New Book
+        </strong>
+        <span>Register catalog titles and stock counts</span>
+    </a>
+    <a class="action-card" href="{% url 'member_create' %}">
+        <strong>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="20" y1="8" x2="20" y2="14"></line>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+            Register Member
+        </strong>
+        <span>Enroll a reader or library student account</span>
+    </a>
+    <a class="action-card" href="{% url 'issue_book' %}">
+        <strong>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);">
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7 7 17 7 17 17"></polyline>
+            </svg>
+            Issue a Book
+        </strong>
+        <span>Assign an available title to a borrower</span>
+    </a>
 </section>
 {% endblock %}

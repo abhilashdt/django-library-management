@@ -1,20 +1,61 @@
 {% extends "catalog/base.html" %}
-{% block title %}Books · Library Manager{% endblock %}
+
+{% block title %}Books Catalogue · Athena Library Manager{% endblock %}
+
 {% block content %}
 <div class="page-heading split">
-    <div><p class="eyebrow">CATALOGUE</p><h1>Books</h1><p>All books currently registered in the library.</p></div>
-    <a class="button" href="{% url 'book_create' %}">Add book</a>
+    <div>
+        <p class="eyebrow">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            INVENTORY REPOSITORY
+        </p>
+        <h1>Books Catalogue</h1>
+        <p>Complete repository of book titles, ISBN identifiers, and shelf availability.</p>
+    </div>
+    <a class="button" href="{% url 'book_create' %}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Add Book Title
+    </a>
 </div>
+
 <section class="panel table-wrap">
-<table>
-    <thead><tr><th>Title</th><th>Author</th><th>ISBN</th><th>Total</th><th>Available</th></tr></thead>
-    <tbody>
-    {% for book in books %}
-        <tr><td>{{ book.title }}</td><td>{{ book.author }}</td><td>{{ book.isbn }}</td><td>{{ book.total_copies }}</td><td>{{ book.available_copies }}</td></tr>
-    {% empty %}
-        <tr><td colspan="5" class="empty">No books yet.</td></tr>
-    {% endfor %}
-    </tbody>
-</table>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>ISBN Identifier</th>
+                <th>Total Copies</th>
+                <th>Available on Shelf</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for book in books %}
+            <tr>
+                <td><strong>{{ book.title }}</strong></td>
+                <td>{{ book.author }}</td>
+                <td><code>{{ book.isbn }}</code></td>
+                <td>{{ book.total_copies }}</td>
+                <td>
+                    {% if book.available_copies > 0 %}
+                        <span class="badge active">{{ book.available_copies }} In Stock</span>
+                    {% else %}
+                        <span class="badge returned">Out of Stock</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5" class="empty">No book records found in the library database.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </section>
 {% endblock %}

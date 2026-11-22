@@ -105,10 +105,12 @@ jobs:
 
       - name: Upload bundle to S3
         run: |
+          [ -z "${AWS_SESSION_TOKEN}" ] && unset AWS_SESSION_TOKEN
           aws s3 cp deploy.zip "s3://${EB_S3_BUCKET}/deploy-${GITHUB_SHA}.zip" --region "${AWS_REGION}"
 
       - name: Create Elastic Beanstalk application version
         run: |
+          [ -z "${AWS_SESSION_TOKEN}" ] && unset AWS_SESSION_TOKEN
           aws elasticbeanstalk create-application-version \
             --application-name "${EB_APPLICATION_NAME}" \
             --version-label "${GITHUB_SHA}" \
@@ -118,6 +120,7 @@ jobs:
 
       - name: Wait for application version to be processed
         run: |
+          [ -z "${AWS_SESSION_TOKEN}" ] && unset AWS_SESSION_TOKEN
           MAX_WAIT=360
           INTERVAL=10
           for ((elapsed=0; elapsed<MAX_WAIT; elapsed+=INTERVAL)); do
@@ -144,6 +147,7 @@ jobs:
 
       - name: Deploy application version to environment
         run: |
+          [ -z "${AWS_SESSION_TOKEN}" ] && unset AWS_SESSION_TOKEN
           aws elasticbeanstalk update-environment \
             --application-name "${EB_APPLICATION_NAME}" \
             --environment-name "${EB_ENVIRONMENT_NAME}" \

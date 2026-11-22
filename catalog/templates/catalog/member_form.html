@@ -1,13 +1,22 @@
 {% extends "catalog/base.html" %}
-{% block title %}Register member · Library Manager{% endblock %}
+
+{% block title %}Register Member · Athena Library Manager{% endblock %}
+
 {% block content %}
-<section class="page-heading"><p class="eyebrow">READERS</p><h1>Register a member</h1><p>Enter the member's contact information.</p></section>
+<section class="page-heading">
+    <p class="eyebrow">PATRON REGISTRATION</p>
+    <h1>Register New Member</h1>
+    <p>Create an active library card record for a student or researcher.</p>
+</section>
+
 <section class="form-panel">
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button class="button" type="submit">Save member</button>
-    <a class="text-link" href="{% url 'member_list' %}">Cancel</a>
-</form>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div style="margin-top: 24px; display: flex; align-items: center; gap: 14px;">
+            <button class="button" type="submit">Complete Registration</button>
+            <a class="text-link" href="{% url 'member_list' %}">Cancel & Return</a>
+        </div>
+    </form>
 </section>
 {% endblock %}
