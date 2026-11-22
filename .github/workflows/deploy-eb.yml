@@ -1,0 +1,151 @@
+name: CI/CD Pipeline - Django Library Management to AWS Elastic Beanstalk
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  # -------------------------------------------------------------
+  # Stage 1 & 2: Linting, Testing, Coverage & SonarQube Analysis
+  # -------------------------------------------------------------
+  ci:
+    name: Code Quality (Pylint, Tests & SonarQube)
+    runs-on: ubuntu-latest
+    env:
+      PYTHON_VERSION: "3.12"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history required for SonarQube blame & quality analysis
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run Pylint
+        run: |
+          pylint --rcfile=.pylintrc catalog demoproj
+
+      - name: Run Tests with Coverage
+        run: |
+          coverage run manage.py test
+          coverage xml -o coverage.xml
+          coverage report
+
+      - name: SonarQube / SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+  # -------------------------------------------------------------
+  # Stage 3: Continuous Deployment to AWS Elastic Beanstalk
+  # -------------------------------------------------------------
+  deploy:
+    name: Deploy to AWS Elastic Beanstalk
+    needs: ci
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: "us-east-1"
+      EB_APPLICATION_NAME: ${{ secrets.EB_APPLICATION_NAME }}
+      EB_ENVIRONMENT_NAME: ${{ secrets.EB_ENVIRONMENT_NAME }}
+      EB_S3_BUCKET: ${{ secrets.EB_S3_BUCKET }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      PYTHON_VERSION: "3.12"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install AWS CLI v2
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip -q awscliv2.zip
+          sudo ./aws/install --update
+          aws --version
+
+      - name: Ensure postdeploy hook is executable
+        run: |
+          chmod +x .platform/hooks/postdeploy/*.sh || true
+
+      - name: Create deployment bundle
+        run: |
+          zip -r deploy.zip . -x ".git/*" ".github/*" ".venv/*" "venv/*" "env/*" "__pycache__/*" "*.pyc" ".coverage" "coverage.xml" ".scannerwork/*" "staticfiles/*"
+
+      - name: Upload bundle to S3
+        run: |
+          aws s3 cp deploy.zip "s3://${EB_S3_BUCKET}/deploy-${GITHUB_SHA}.zip" --region "${AWS_REGION}"
+
+      - name: Create Elastic Beanstalk application version
+        run: |
+          aws elasticbeanstalk create-application-version \
+            --application-name "${EB_APPLICATION_NAME}" \
+            --version-label "${GITHUB_SHA}" \
+            --source-bundle S3Bucket="${EB_S3_BUCKET}",S3Key="deploy-${GITHUB_SHA}.zip" \
+            --process \
+            --region "${AWS_REGION}"
+
+      - name: Wait for application version to be processed
+        run: |
+          MAX_WAIT=360
+          INTERVAL=10
+          for ((elapsed=0; elapsed<MAX_WAIT; elapsed+=INTERVAL)); do
+            STATUS=$(aws elasticbeanstalk describe-application-versions \
+              --application-name "${EB_APPLICATION_NAME}" \
+              --version-labels "${GITHUB_SHA}" \
+              --region "${AWS_REGION}" \
+              --query "ApplicationVersions[0].Status" \
+              --output text)
+            echo "Current application version status: ${STATUS}"
+            STATUS_UPPER=$(echo "${STATUS}" | tr '[:lower:]' '[:upper:]')
+            if [ "${STATUS_UPPER}" = "PROCESSED" ]; then
+              echo "Application version is ready for deployment."
+              exit 0
+            fi
+            if [ "${STATUS_UPPER}" = "FAILED" ]; then
+              echo "Application version processing failed."
+              exit 1
+            fi
+            sleep "${INTERVAL}"
+          done
+          echo "Timed out waiting for application version to finish processing."
+          exit 1
+
+      - name: Deploy application version to environment
+        run: |
+          aws elasticbeanstalk update-environment \
+            --application-name "${EB_APPLICATION_NAME}" \
+            --environment-name "${EB_ENVIRONMENT_NAME}" \
+            --version-label "${GITHUB_SHA}" \
+            --region "${AWS_REGION}"

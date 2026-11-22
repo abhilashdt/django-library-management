@@ -1,0 +1,23 @@
+[MAIN]
+load-plugins = pylint_django
+django-settings-module = demoproj.settings
+ignore = migrations,env,.venv,staticfiles,.git,__pycache__
+ignore-patterns = .*/migrations/.*
+
+[MESSAGES CONTROL]
+disable =
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
+    too-few-public-methods,
+    imported-auth-user,
+    line-too-long,
+    duplicate-code,
+    invalid-name
+
+[FORMAT]
+max-line-length = 120
+
+[DESIGN]
+max-args = 7
+max-attributes = 10

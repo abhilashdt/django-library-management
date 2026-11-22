@@ -1,0 +1,34 @@
+{% extends "catalog/base.html" %}
+{% block title %}Loans · Library Manager{% endblock %}
+{% block content %}
+<div class="page-heading split">
+    <div><p class="eyebrow">CIRCULATION</p><h1>Loans</h1><p>Track active and returned books.</p></div>
+    <a class="button" href="{% url 'issue_book' %}">Issue a book</a>
+</div>
+<section class="panel table-wrap">
+<table>
+    <thead><tr><th>Book</th><th>Member</th><th>Issued</th><th>Due</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody>
+    {% for loan in loans %}
+        <tr>
+            <td>{{ loan.book.title }}</td>
+            <td>{{ loan.member.name }}</td>
+            <td>{{ loan.issued_at|date:"d M Y" }}</td>
+            <td>{{ loan.due_date|date:"d M Y" }}</td>
+            <td>{% if loan.returned_at %}<span class="badge returned">Returned</span>{% else %}<span class="badge active">Active</span>{% endif %}</td>
+            <td>
+                {% if not loan.returned_at %}
+                <form method="post" action="{% url 'return_book' loan.id %}">
+                    {% csrf_token %}
+                    <button class="small-button" type="submit">Return</button>
+                </form>
+                {% else %}—{% endif %}
+            </td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="6" class="empty">No loans have been recorded.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+</section>
+{% endblock %}

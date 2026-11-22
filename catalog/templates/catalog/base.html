@@ -1,0 +1,31 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Library Manager{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'catalog/style.css' %}">
+</head>
+<body>
+<header class="topbar">
+    <a class="brand" href="{% url 'dashboard' %}">Library Manager</a>
+    <nav>
+        <a href="{% url 'book_list' %}">Books</a>
+        <a href="{% url 'member_list' %}">Members</a>
+        <a href="{% url 'loan_list' %}">Loans</a>
+        <a href="{% url 'issue_book' %}" class="nav-button">Issue a book</a>
+        <a href="{% url 'admin:index' %}">Admin</a>
+    </nav>
+</header>
+<main class="container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+</main>
+<footer class="footer">Django Library Management System · Teaching starter</footer>
+</body>
+</html>

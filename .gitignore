@@ -1,0 +1,40 @@
+# Python & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Databases
+db.sqlite3
+*.sqlite3
+
+# Environment & Secrets
+.env
+.env.*
+
+# Static & Media
+staticfiles/
+media/
+
+# Elastic Beanstalk & Deployment
+.elasticbeanstalk/*.bak
+*.zip
+deploy.zip
+
+# Testing, Coverage & Linters
+.coverage
+htmlcov/
+coverage.xml
+.scannerwork/
+.pylint_report/
+
+# Old nested source directory
+django_library_management_project/
+
+# OS metadata
+.DS_Store
+Thumbs.db
