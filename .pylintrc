@@ -3,6 +3,7 @@ load-plugins = pylint_django
 django-settings-module = demoproj.settings
 ignore = migrations,env,.venv,staticfiles,.git,__pycache__
 ignore-patterns = .*/migrations/.*
+####
 
 [MESSAGES CONTROL]
 disable =
