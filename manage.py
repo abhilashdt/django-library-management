@@ -4,6 +4,10 @@ import sys
 ####
 ###
 #####
+<<<<<<< HEAD
+=======
+#####
+>>>>>>> 828eef1 (trigger)
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "demoproj.settings")
     from django.core.management import execute_from_command_line
