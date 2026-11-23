@@ -2,11 +2,11 @@
 set -e
 cd /var/app/current
 
-PYTHON=$(find /var/app/venv -name python3 -type f | head -n 1)
-if [ -z "$PYTHON" ]; then
-    PYTHON=$(ls -d /var/app/venv/*/bin/python | head -n 1)
-fi
+# Activate the Elastic Beanstalk Python virtual environment
+source /var/app/venv/*/bin/activate
 
-echo "Using Python executable: $PYTHON"
-$PYTHON manage.py migrate --noinput
-$PYTHON manage.py collectstatic --noinput
+# Apply database migrations to create SQLite tables
+python manage.py migrate --noinput
+
+# Collect static files
+python manage.py collectstatic --noinput
