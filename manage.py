@@ -5,9 +5,13 @@ import sys
 ###
 #####
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #####
 >>>>>>> 828eef1 (trigger)
+=======
+####
+>>>>>>> 157834c (triggerall)
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "demoproj.settings")
     from django.core.management import execute_from_command_line
