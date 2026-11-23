@@ -51,10 +51,10 @@
             <tbody>
             {% for loan in recent_loans %}
                 <tr>
-                    <td><strong>{{ loan.book.title }}</strong></td>
-                    <td>{{ loan.member.name }}</td>
-                    <td>{{ loan.issued_at|date:"d M Y" }}</td>
-                    <td>{{ loan.due_date|date:"d M Y" }}</td>
+                    <td><strong>{{ loan.book_title }}</strong></td>
+                    <td>{{ loan.member_name }}</td>
+                    <td>{{ loan.issued_at|slice:":10" }}</td>
+                    <td>{{ loan.due_date }}</td>
                     <td>
                         {% if loan.returned_at %}
                             <span class="badge returned">Returned</span>

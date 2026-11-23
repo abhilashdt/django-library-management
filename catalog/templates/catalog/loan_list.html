@@ -12,7 +12,7 @@
             </svg>
             CIRCULATION DESK
         </p>
-        <h1>Active & Past Loans</h1>
+        <h1>Active &amp; Past Loans</h1>
         <p>Monitor book loans, track overdue returns, and check in returned titles.</p>
     </div>
     <a class="button" href="{% url 'issue_book' %}">
@@ -39,20 +39,20 @@
         <tbody>
         {% for loan in loans %}
             <tr>
-                <td><strong>{{ loan.book.title }}</strong></td>
-                <td>{{ loan.member.name }}</td>
-                <td>{{ loan.issued_at|date:"d M Y" }}</td>
-                <td>{{ loan.due_date|date:"d M Y" }}</td>
+                <td><strong>{{ loan.book_title }}</strong></td>
+                <td>{{ loan.member_name }}</td>
+                <td>{{ loan.issued_at|slice:":10" }}</td>
+                <td>{{ loan.due_date }}</td>
                 <td>
                     {% if loan.returned_at %}
-                        <span class="badge returned">Returned on {{ loan.returned_at|date:"d M Y" }}</span>
+                        <span class="badge returned">Returned on {{ loan.returned_at|slice:":10" }}</span>
                     {% else %}
                         <span class="badge active">Active Loan</span>
                     {% endif %}
                 </td>
                 <td style="text-align: right;">
                     {% if not loan.returned_at %}
-                    <form method="post" action="{% url 'return_book' loan.id %}" style="display:inline;">
+                    <form method="post" action="{% url 'return_book' loan.loan_id %}" style="display:inline;">
                         {% csrf_token %}
                         <button class="small-button" type="submit">Return Book</button>
                     </form>

@@ -32,8 +32,8 @@ else:
         "http://*.elasticbeanstalk.com",
     ]
 
+# Installed Applications – No admin console
 INSTALLED_APPS = [
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -73,6 +73,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "demoproj.wsgi.application"
 ASGI_APPLICATION = "demoproj.asgi.application"
 
+# Database – SQLite on Elastic Beanstalk (No DynamoDB)
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",

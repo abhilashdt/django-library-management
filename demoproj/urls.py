@@ -1,7 +1,6 @@
-from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    # Admin console removed – all management is done via the library UI
     path("", include("catalog.urls")),
 ]

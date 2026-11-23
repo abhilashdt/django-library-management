@@ -12,20 +12,23 @@ permissions:
   contents: read
 
 jobs:
-  # -------------------------------------------------------------
+  # -------------------------------------------------------------------
   # Stage 1 & 2: Linting, Testing, Coverage & SonarQube Analysis
-  # -------------------------------------------------------------
+  # -------------------------------------------------------------------
   ci:
     name: Code Quality (Pylint, Tests & SonarQube)
     runs-on: ubuntu-latest
     env:
       PYTHON_VERSION: "3.12"
+      # Minimal env so Django starts without real AWS creds in CI
+      DJANGO_SETTINGS_MODULE: demoproj.settings
+      DJANGO_DEBUG: "True"
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Full history required for SonarQube blame & quality analysis
+          fetch-depth: 0
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5
@@ -55,9 +58,9 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-  # -------------------------------------------------------------
+  # -------------------------------------------------------------------
   # Stage 3: Continuous Deployment to AWS Elastic Beanstalk
-  # -------------------------------------------------------------
+  # -------------------------------------------------------------------
   deploy:
     name: Deploy to AWS Elastic Beanstalk
     needs: ci
@@ -95,13 +98,22 @@ jobs:
           sudo ./aws/install --update
           aws --version
 
-      - name: Ensure postdeploy hook is executable
+      - name: Collect static files
         run: |
-          chmod +x .platform/hooks/postdeploy/*.sh || true
+          python manage.py collectstatic --noinput
+        env:
+          DJANGO_DEBUG: "False"
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+
+      - name: Ensure postdeploy hook is executable
+        run: chmod +x .platform/hooks/postdeploy/*.sh || true
 
       - name: Create deployment bundle
         run: |
-          zip -r deploy.zip . -x ".git/*" ".github/*" ".venv/*" "venv/*" "env/*" "__pycache__/*" "*.pyc" ".coverage" "coverage.xml" ".scannerwork/*" "staticfiles/*"
+          zip -r deploy.zip . \
+            -x ".git/*" ".github/*" ".venv/*" "venv/*" "env/*" \
+               "__pycache__/*" "*.pyc" ".coverage" "coverage.xml" \
+               ".scannerwork/*" "db.sqlite3" "django-deploy.zip"
 
       - name: Upload bundle to S3
         run: |
