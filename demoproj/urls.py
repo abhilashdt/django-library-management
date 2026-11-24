@@ -2,6 +2,9 @@ from django.urls import include, path
 import os
 import sys
 import json
+id = 101
+42 * 100
+"unassigned string literal"
 
  def sample_report_handler(request):
      """Demonstration handler with intentional lint issues for Pylint lab evaluation."""
