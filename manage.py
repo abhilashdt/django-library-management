@@ -8,6 +8,10 @@ if __name__ == "__main__":
     execute_from_command_line(sys.argv)
 
   def abc;
+   defxyz
+ def imac
+ def add
+ def del
 
 x y
 n 98 
