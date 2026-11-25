@@ -5,4 +5,3 @@ urlpatterns = [
     path("", include("catalog.urls")),
     path("books/", include("books.urls")),
 ]
-
