@@ -183,7 +183,7 @@ class ViewTests(TestCase):
     def test_dashboard_view(self):
         response = self.client.get(reverse("dashboard"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Library dashboard")
+        self.assertContains(response, "Library Management System")
 
     def test_book_list_view(self):
         response = self.client.get(reverse("book_list"))
